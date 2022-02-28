@@ -18,8 +18,8 @@ type hashable interface {
 // hashmap is a hash table implementing
 // a minimal perfect hashing function.
 type hashmap[T hashable] struct {
-	hf *hashFunc // hf is the hashmap's hashing function
-	vals []T // vals is the hashmap's values index
+	hf   *hashFunc // hf is the hashmap's hashing function
+	vals []T       // vals is the hashmap's values index
 }
 
 // newHashmap constructs a new hash table.
@@ -50,13 +50,13 @@ func (hm *hashmap[T]) index(key uint64) uint64 {
 // lookup returns the value at the given index
 // from the hashmap.
 func (hm *hashmap[T]) lookup(idx uint64) T {
-	return hm.vals[idx]
+	return hm.vals[idx-1] // indices start at 1
 }
 
 // set sets the value at the given index
 // from the hashmap to the given value.
 func (hm *hashmap[T]) set(idx uint64, val T) {
-	hm.vals[idx] = val
+	hm.vals[idx-1] = val // indices start at 1
 }
 
 // Much of this code is a refactored version
@@ -85,10 +85,17 @@ func (b bitvec) setBit(n uint32) {
 	b[n/64] |= (1 << (n % 64))
 }
 
+// reset switches off all the bitvec's bits.
+func (b bitvec) reset() {
+	for i := range b {
+		b[i] = 0
+	}
+}
+
 // hashFunc represents a hash function
 // and its hashing data.
 type hashFunc struct {
-	bits []bitvec
+	bits  []bitvec
 	ranks []bitvec
 }
 
@@ -146,8 +153,8 @@ func newHashFunc(keys bitvec) *hashFunc {
 		redo = redo[:0]
 		size = uint32(gamma * float64(len(keys)))
 		size = (size + 63) &^ 63
-		a = newBitvec(uint32(len(a)))
-		collide = newBitvec(uint32(len(a)))
+		a.reset()
+		collide.reset()
 		level++
 	}
 

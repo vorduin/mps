@@ -7,6 +7,12 @@ package mps
 // Hashsort creates a sorted copy of the given
 // slice and returns it.
 func Hashsort[T hashable](s []T) []T {
+	if s == nil {
+		return nil
+	} else if len(s) == 0 {
+		return []T{}
+	}
+	
 	sorted := make([]T, len(s))
 	hm := newHashmap(s)
 
@@ -15,7 +21,7 @@ func Hashsort[T hashable](s []T) []T {
 		keyIdx := hm.index(uint64(s[i]))
 
 		// increase the key's count in the hashmap
-		hm.set(keyIdx, hm.lookup(keyIdx) + 1)
+		hm.set(keyIdx, hm.lookup(keyIdx)+1)
 
 		if s[i] < min {
 			min = s[i]
@@ -25,7 +31,7 @@ func Hashsort[T hashable](s []T) []T {
 	}
 
 	var idx int
-	for i := min; i < max; i++ {
+	for i := min; i <= max; i++ {
 		keyIdx := hm.index(uint64(i))
 
 		if keyIdx != 0 {
